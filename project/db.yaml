@@ -1,0 +1,41 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "homeloanappdb"
+  namespace: "default"
+  labels:
+    app: "homeloanappdb"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "homeloanappdb"
+  template:
+    metadata:
+      labels:
+        app: "homeloanappdb"
+    spec:
+      containers:
+      - name: "database-sha256-1"
+        image: "gcr.io/gcpdemo-334906/github.com/farin77/database@sha256:ae5bb3ea9ce7ec3824eb522686c49919db38a682287833fc3df79ad55f1848a1"
+---
+apiVersion: "autoscaling/v2beta1"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "homeloanappdb-hpa-cys7"
+  namespace: "default"
+  labels:
+    app: "homeloanappdb"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "homeloanappdb"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      targetAverageUtilization: 80
