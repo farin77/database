@@ -1,0 +1,41 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "hmappn-fr"
+  namespace: "default"
+  labels:
+    app: "hmappn-fr"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "hmappn-fr"
+  template:
+    metadata:
+      labels:
+        app: "hmappn-fr"
+    spec:
+      containers:
+      - name: "database-sha256-1"
+        image: "gcr.io/gcpdemo-334906/github.com/farin77/database@sha256:529ea04b1e868405633b98adb3da97cb8b9aa20f728a50be9840fb82e6c011bf"
+---
+apiVersion: "autoscaling/v2beta1"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "hmappn-fr-hpa-3kdb"
+  namespace: "default"
+  labels:
+    app: "hmappn-fr"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "hmappn-fr"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      targetAverageUtilization: 80
